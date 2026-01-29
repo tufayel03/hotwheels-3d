@@ -17,7 +17,7 @@ function Loader() {
 }
 
 // Preload to prevent stutter
-useGLTF.preload('/free_1975_porsche_911_930_turbo.glb');
+// useGLTF.preload('/free_1975_porsche_911_930_turbo.glb');
 
 function Sun() {
     return (
@@ -41,8 +41,8 @@ function Sun() {
 
 function SportsCar({ orbitalParams, scale = 1 }) {
     const group = useRef();
-    const { scene } = useGLTF('/free_1975_porsche_911_930_turbo.glb');
-    const clone = useMemo(() => scene.clone(), [scene]);
+    // const { scene } = useGLTF('/free_1975_porsche_911_930_turbo.glb');
+    // const clone = useMemo(() => scene.clone(), [scene]);
 
     const [hovered, setHover] = useState(false);
     const [clicked, setClicked] = useState(false);
@@ -89,10 +89,8 @@ function SportsCar({ orbitalParams, scale = 1 }) {
 
     return (
         <group ref={group}>
-            {/* INVISIBLE HITBOX */}
+            {/* PROXY CAR (SIMPLE BOX) */}
             <mesh
-                visible={false}
-                position={[0, 0.5, 0]}
                 onPointerOver={(e) => { e.stopPropagation(); setHover(true); document.body.style.cursor = 'pointer'; }}
                 onPointerOut={() => { setHover(false); setHeld(false); document.body.style.cursor = 'auto'; }}
                 onPointerDown={(e) => { e.stopPropagation(); setHeld(true); }}
@@ -100,14 +98,14 @@ function SportsCar({ orbitalParams, scale = 1 }) {
                 onClick={(e) => { e.stopPropagation(); if (!held) setClicked(!clicked); }}
             >
                 <boxGeometry args={[4, 2, 8]} />
-                <meshBasicMaterial transparent opacity={0.5} color="red" />
+                <meshStandardMaterial color={hovered ? "hotpink" : (clicked ? "cyan" : "red")} />
             </mesh>
 
-            <primitive
+            {/* <primitive
                 object={clone}
                 scale={[1, 1, 1]} // Scale handled by group
                 rotation={[0, 0, 0]}
-            />
+            /> */}
         </group>
     );
 }
@@ -161,6 +159,7 @@ export default function Hero3D() {
                         <div><b>Drag</b> - Rotate View</div>
                         <div><b>Scroll</b> - Zoom</div>
                         <div><b>Click Sun</b> - (It burns)</div>
+                        <div style={{ color: 'orange', fontWeight: 'bold', marginTop: '10px' }}>⚠️ PERFORMANCE MODE</div>
                     </div>
                 </div>
 
