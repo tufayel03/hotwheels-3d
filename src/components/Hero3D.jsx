@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera, Float, ContactShadows, Environment, Stars, useGLTF, OrbitControls, useProgress, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import ErrorBoundary from './ErrorBoundary';
 
 function Loader() {
     const { progress } = useProgress();
@@ -142,53 +143,55 @@ function CarFleet() {
 
 export default function Hero3D() {
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0, background: '#050505' }}>
-            {/* SOLAR HUD */}
-            <div style={{
-                position: 'absolute',
-                top: '20px',
-                left: '20px',
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontFamily: "'Inter', sans-serif",
-                zIndex: 10,
-                pointerEvents: 'none',
-                textShadow: '0 0 10px rgba(0,0,0,0.5)'
-            }}>
-                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#FFD700' }}>☀️ SOLAR SYSTEM MODE</h3>
-                <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
-                    <div><b>Drag</b> - Rotate View</div>
-                    <div><b>Scroll</b> - Zoom</div>
-                    <div><b>Click Sun</b> - (It burns)</div>
+        <ErrorBoundary>
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0, background: '#050505' }}>
+                {/* SOLAR HUD */}
+                <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    left: '20px',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    fontFamily: "'Inter', sans-serif",
+                    zIndex: 10,
+                    pointerEvents: 'none',
+                    textShadow: '0 0 10px rgba(0,0,0,0.5)'
+                }}>
+                    <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#FFD700' }}>☀️ SOLAR SYSTEM MODE</h3>
+                    <div style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>
+                        <div><b>Drag</b> - Rotate View</div>
+                        <div><b>Scroll</b> - Zoom</div>
+                        <div><b>Click Sun</b> - (It burns)</div>
+                    </div>
                 </div>
+
+                <React.Suspense fallback={null}>
+                    <Canvas shadows camera={{ position: [0, 40, 100], fov: 60 }} style={{ width: '100%', height: '100%' }}>
+                        <color attach="background" args={['#050505']} />
+                        <fog attach="fog" args={['#050505', 50, 300]} />
+
+                        <ambientLight intensity={0.2} />
+
+                        <group position={[0, 0, 0]}>
+                            <Sun />
+                            <React.Suspense fallback={<Loader />}>
+                                <CarFleet />
+                            </React.Suspense>
+                        </group>
+
+                        <Stars radius={200} depth={50} count={8000} factor={4} saturation={0} fade speed={0.5} />
+                        <Environment preset="city" />
+
+                        {/* ORBIT CONTROLS for inspection */}
+                        <OrbitControls
+                            enableZoom={true}
+                            autoRotate={true}
+                            autoRotateSpeed={0.5}
+                            maxDistance={300}
+                            minDistance={20}
+                        />
+                    </Canvas>
+                </React.Suspense>
             </div>
-
-            <React.Suspense fallback={null}>
-                <Canvas shadows camera={{ position: [0, 40, 100], fov: 60 }} style={{ width: '100%', height: '100%' }}>
-                    <color attach="background" args={['#050505']} />
-                    <fog attach="fog" args={['#050505', 50, 300]} />
-
-                    <ambientLight intensity={0.2} />
-
-                    <group position={[0, 0, 0]}>
-                        <Sun />
-                        <React.Suspense fallback={<Loader />}>
-                            <CarFleet />
-                        </React.Suspense>
-                    </group>
-
-                    <Stars radius={200} depth={50} count={8000} factor={4} saturation={0} fade speed={0.5} />
-                    <Environment preset="city" />
-
-                    {/* ORBIT CONTROLS for inspection */}
-                    <OrbitControls
-                        enableZoom={true}
-                        autoRotate={true}
-                        autoRotateSpeed={0.5}
-                        maxDistance={300}
-                        minDistance={20}
-                    />
-                </Canvas>
-            </React.Suspense>
-        </div>
+        </ErrorBoundary>
     );
 }
