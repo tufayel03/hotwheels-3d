@@ -1,7 +1,19 @@
 import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Float, ContactShadows, Environment, Stars, useGLTF, OrbitControls } from '@react-three/drei';
+import { PerspectiveCamera, Float, ContactShadows, Environment, Stars, useGLTF, OrbitControls, useProgress, Html } from '@react-three/drei';
 import * as THREE from 'three';
+
+function Loader() {
+    const { progress } = useProgress();
+    return (
+        <Html center>
+            <div style={{ color: 'white', fontFamily: 'Inter, sans-serif', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{progress.toFixed(0)}%</div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>LOADING SOLAR FLEET</div>
+            </div>
+        </Html>
+    );
+}
 
 // Preload to prevent stutter
 useGLTF.preload('/free_1975_porsche_911_930_turbo.glb');
@@ -150,7 +162,7 @@ export default function Hero3D() {
                 </div>
             </div>
 
-            <React.Suspense fallback={<div className="text-white absolute inset-0 flex items-center justify-center text-2xl font-black tracking-widest animate-pulse">LOADING SOLAR FLEET...</div>}>
+            <React.Suspense fallback={null}>
                 <Canvas shadows camera={{ position: [0, 40, 100], fov: 60 }} style={{ width: '100%', height: '100%' }}>
                     <color attach="background" args={['#050505']} />
                     <fog attach="fog" args={['#050505', 50, 300]} />
@@ -159,7 +171,9 @@ export default function Hero3D() {
 
                     <group position={[0, 0, 0]}>
                         <Sun />
-                        <CarFleet />
+                        <React.Suspense fallback={<Loader />}>
+                            <CarFleet />
+                        </React.Suspense>
                     </group>
 
                     <Stars radius={200} depth={50} count={8000} factor={4} saturation={0} fade speed={0.5} />
